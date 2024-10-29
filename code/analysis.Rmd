@@ -1,0 +1,51 @@
+---
+title: "Análisis de hechos delictivos - énfasis PNC"
+output: html_notebook
+---
+
+Los siguientes años seran descartados, ya que no se cuenta con una base de datos para su análisis
+
+- 2009
+- 2010
+- 2013
+- 2014
+- 2015
+
+
+Instalación de librerias necesarias para cargar la información, la cual se encuetra en archivos de tipo sav.
+```{r}
+install.packages("haven")
+library(haven)
+```
+
+
+
+
+### Analisis de detenidos y victimas en el año 2011
+
+```{r}
+#carga de informacion
+detenidos_data_2011  <- read_sav("../data/2011/detenidos.sav")
+victimas_data_2011 <- read_sav("../data/2011/victimas.sav")
+
+detenidos_data_2012  <- read_sav("../data/2012/detenidos.sav")
+victimas_data_2012 <- read_sav("../data/2012/victimas.sav")
+
+detenidos_data_2016  <- read_sav("../data/2016/detenidos.sav")
+victimas_data_2016 <- read_sav("../data/2016/victimas.sav")
+
+detenidos_data_2017  <- read_sav("../data/2017/detenidos.sav")
+victimas_data_2017 <- read_sav("../data/2017/victimas.sav")
+
+detenidos_data_2018  <- read_sav("../data/2018/detenidos.sav")
+victimas_data_2018 <- read_sav("../data/2018/victimas.sav")
+
+colnames(detenidos_data_2016)
+
+```
+
+```{r}
+colnames(detenidos_data_2017)
+```
+
+
