@@ -11,18 +11,27 @@ Los siguientes años seran descartados, ya que no se cuenta con una base de dato
 - 2014
 - 2015
 
+Los siguiente años no cuentan con diccionario de variables, sin embargo con el archivo de tipo .sav, es posible observar las etiquetas de los datos.
+- 2021
+- 2024
 
-Instalación de librerias necesarias para cargar la información, la cual se encuetra en archivos de tipo sav.
+Instalación de librerias necesarias para cargar y manipular la información, la cual se encuetra en archivos de tipo sav.
 ```{r}
-install.packages("haven")
+#install.packages("haven")
+#install.packages("dplyr")
+#install.packages("arules")
 library(haven)
+library(dplyr)
+library(arules)
+
 ```
 
 
 
 
-### Analisis de detenidos y victimas en el año 2011
+## Analisis de detenidos y victimas en el año 2011
 
+### Cargando información
 ```{r}
 #carga de informacion
 detenidos_data_2011  <- read_sav("../data/2011/detenidos.sav")
@@ -40,12 +49,223 @@ victimas_data_2017 <- read_sav("../data/2017/victimas.sav")
 detenidos_data_2018  <- read_sav("../data/2018/detenidos.sav")
 victimas_data_2018 <- read_sav("../data/2018/victimas.sav")
 
-colnames(detenidos_data_2016)
+detenidos_data_2019  <- read_sav("../data/2019/detenidos.sav")
+victimas_data_2019 <- read_sav("../data/2019/victimas.sav")
 
+detenidos_data_2020  <- read_sav("../data/2020/detenidos.sav")
+victimas_data_2020 <- read_sav("../data/2020/victimas.sav")
+
+detenidos_data_2021  <- read_sav("../data/2021/detenidos.sav")
+victimas_data_2021 <- read_sav("../data/2021/victimas.sav")
+
+detenidos_data_2022  <- read_sav("../data/2022/detenidos.sav")
+victimas_data_2022 <- read_sav("../data/2022/victimas.sav")
+
+detenidos_data_2023  <- read_sav("../data/2023/detenidos.sav")
+victimas_data_2023 <- read_sav("../data/2023/victimas.sav")
+
+detenidos_data_2024  <- read_sav("../data/2024/detenidos.sav")
+victimas_data_2024 <- read_sav("../data/2024/victimas.sav")
 ```
+
+
+Análisis de detenidos
+
+1. Reglas de asociación Apriori
+● Empleando el algoritmo Apriori, los estudiantes deben descubrir patrones y
+relaciones interesantes entre diferentes variables en los conjuntos de datos
+(mínimo 4 patrones interesantes).
+● Deben identificar asociaciones significativas que puedan ayudar a
+comprender mejor la problemática en cuestión y sugerir posibles
+intervenciones.
+● Se espera que proporcionen interpretaciones sobre el significado y la
+relevancia de estas reglas de asociación para abordar la problemática
+identificada.
+
+## Arreglando información de detenidos
+
+Luego de visualizar la información, y los datos que posee, se decide que se excluira los datos de 2011 y 2012, ya que poseen muchas menos columnas que las demás.
+
 
 ```{r}
-colnames(detenidos_data_2017)
+
+#arreglando data 2016
+detenidos_data_2016$mupio_ocu <- as.numeric(detenidos_data_2016$mupio_ocu)
+
+fix_data_2016 <- detenidos_data_2016 %>%
+  select(-menor_mayor, cód_int_Detenidos)
+
+
+  
+#arreglando data 2017
+detenidos_data_2017$mupio_ocu <- as.numeric(detenidos_data_2017$mupio_ocu)
+# Obtener las etiquetas actuales de detenidos_data_2017
+labels_2017 <- attr(detenidos_data_2017$edad_quinquenales, "labels")
+
+# Cambiar la etiqueta "80 y más" a "80 o más"
+names(labels_2017)[names(labels_2017) == "80 y más"] <- "80 o más"
+
+# Asignar las nuevas etiquetas corregidas de vuelta al dataset
+attr(detenidos_data_2017$edad_quinquenales, "labels") <- labels_2017
+
+
+fix_data_2017 <- detenidos_data_2017 %>%
+  select(-menor_mayor) %>%
+  mutate(área_geo_ocu = 0) %>%
+  relocate(área_geo_ocu, .after = g_hora_mañ.tar.noch)
+
+
+#arreglando data 2018
+
+fix_data_2018 <- detenidos_data_2018 %>%
+  select(-menor_mayor)
+
+detenidos_unidos <- bind_rows(fix_data_2016, fix_data_2017)
+
+# Comparar los valores de las etiquetas
+setdiff(names(attr(detenidos_data_2016$g_delitos, "labels")), names(attr(detenidos_data_2017$g_delitos, "labels")))
+setdiff(names(attr(detenidos_data_2017$g_delitos, "labels")), names(attr(detenidos_data_2016$g_delitos, "labels")))
+
+attr(victimas_data_2016$hora_ocu, "labels")
+
+str(detenidos_unidos)
+str(detenidos_data_2017)
 ```
 
+
+```{r}
+#corrigiendo etiquetas
+detenidos_data_2016 <- detenidos_data_2016 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+detenidos_data_2017 <- detenidos_data_2017 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+detenidos_data_2018 <- detenidos_data_2018 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+detenidos_data_2020 <- detenidos_data_2020 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+detenidos_data_2021 <- detenidos_data_2021 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+detenidos_data_2022 <- detenidos_data_2022 %>%
+  mutate(across(where(is.labelled), as.numeric))
+
+#arreglando data 2016
+
+fix_data_2016 <- detenidos_data_2016 %>%
+  select(-cód_int_Detenidos)
+  
+#arreglando data 2017
+
+fix_data_2017 <- detenidos_data_2017 %>%
+  mutate(área_geo_ocu = 0) %>%
+  relocate(área_geo_ocu, .after = g_hora_mañ.tar.noch)
+
+#arreglando data 2018
+fix_data_2018 <- detenidos_data_2018 
+
+#arreglando data 2019
+fix_data_2019 <- detenidos_data_2019 
+
+
+#arreglando data 2020
+
+fix_data_2020 <- detenidos_data_2020 %>%
+  mutate(área_geo_ocu = 0) %>%
+  mutate(menor_mayor = case_when(
+    edad_per >= 18 ~ 1,
+    edad_per < 18 ~ 2,
+    is.na(edad_per) ~ 999
+  ))
+
+
+#arreglando data 2021
+
+fix_data_2021 <- detenidos_data_2021 %>%
+  select(-`filter_$`) %>%
+  mutate(área_geo_ocu = 0)  %>%
+  mutate(menor_mayor = case_when(
+    edad_per >= 18 ~ 1,
+    edad_per < 18 ~ 2,
+    is.na(edad_per) ~ 999
+  ))
+
+#arreglando data 2022
+fix_data_2022 <- detenidos_data_2022 %>%
+  mutate(menor_mayor = case_when(
+    edad_per >= 18 ~ 1,
+    edad_per < 18 ~ 2,
+    is.na(edad_per) ~ 999
+  ))
+
+
+#arreglando data 2023
+fix_data_2023 <- detenidos_data_2023 %>%
+  mutate(menor_mayor = case_when(
+    edad_per >= 18 ~ 1,
+    edad_per < 18 ~ 2,
+    is.na(edad_per) ~ 999
+  ))
+
+
+#arreglando data 2024
+fix_data_2024 <- detenidos_data_2024 %>%
+  mutate(menor_mayor = case_when(
+    edad_per >= 18 ~ 1,
+    edad_per < 18 ~ 2,
+    is.na(edad_per) ~ 999
+  ))
+
+
+data <- bind_rows(
+  fix_data_2016, 
+  fix_data_2017,
+  fix_data_2018, 
+  fix_data_2019, 
+  fix_data_2020,
+  fix_data_2021,
+  fix_data_2022,
+  fix_data_2023,
+  fix_data_2024,
+)
+
+data %>%
+  select(año_ocu) %>%
+  distinct()
+
+
+```
+Se procede a convertir las columnas a factores y aplicar apriori
+
+```{r}
+data <- data %>%
+  select(-núm_corre, -edad_per) %>%
+  mutate(across(
+    c(año_ocu, mes_ocu, día_ocu, día_sem_ocu, hora_ocu, g_hora, 
+      g_hora_mañ.tar.noch, área_geo_ocu, depto_ocu, mupio_ocu, zona_ocu, 
+      sexo_per, g_edad_60ymás, g_edad_80ymás, edad_quinquenales, 
+      menor_mayor, g_delitos, delito_com), 
+    as.factor  
+  ))
+
+  reglas <- apriori(data, parameter = list(support = 0.2, confidence = 0.5))
+  inspect(reglas[0:100])
+  inspect(reglas)
+  
+  
+reglas_fpgrowth <- fim4r(data, method ="fpgrowth", target = "rules", supp = .2, conf = .5)
+reglasFrame <- as(reglas_fpgrowth, "data.frame")
+```
+
+## Arreglando información de victimas
+
+Luego de visualizar la información, y los datos que posee, se decide que se excluira los datos de 2011 y 2012, ya que poseen muchas menos columnas que los demás datasets.
+
+
+```{r}
+
+```
 
